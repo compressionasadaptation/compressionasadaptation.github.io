@@ -156,6 +156,10 @@ body {
   border-radius: 5px;
 }
 
+.comparison-subtitle {
+  margin-bottom: 1rem;
+}
+
 .video-compare {
   position: relative;
   width: 100%;
@@ -177,16 +181,16 @@ body {
 .compare-overlay {
   position: absolute;
   top: 0;
-  left: 0;
-  width: 100%;
+  right: 0;
+  width: 50%;
   height: 100%;
-  pointer-events: none;
+  overflow: hidden;
 }
 
 .compare-overlay .compare-video {
   position: absolute;
   top: 0;
-  left: 0;
+  right: 0;
 }
 
 .compare-divider {
@@ -214,16 +218,18 @@ body {
 
 .selected-method {
   margin-top: 0.75rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   font-weight: 600;
 }
 
-.method-groups {
-  display: flex;
-  flex-wrap: nowrap;
+.method-group {
+  margin-bottom: 1.75rem;
+}
+
+.method-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   gap: 0.9rem;
-  overflow-x: auto;
-  padding-bottom: 0.4rem;
 }
 
 .method-card {
@@ -233,8 +239,6 @@ body {
   background: #fff;
   cursor: pointer;
   transition: border-color 0.2s, box-shadow 0.2s;
-  min-width: 190px;
-  flex: 0 0 190px;
 }
 
 .method-card:hover {

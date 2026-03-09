@@ -22,7 +22,8 @@ function setInterpolationImage(i) {
 
 function formatMethodName(file) {
   var base = file.replace('.mp4', '');
-  return base.replace(/_bpp[0-9.]+$/, '').replace(/_/g, ' ');
+  var cleaned = base.replace(/_bpp[0-9.]+$/, '').replace(/_/g, ' ');
+  return cleaned;
 }
 
 function extractBitrate(file) {
@@ -36,34 +37,49 @@ function initVideoComparison() {
 
   var leftVideo = document.getElementById('left-video');
   var rightVideo = document.getElementById('right-video');
+  var overlay = document.getElementById('compare-overlay');
   var divider = document.getElementById('compare-divider');
   var label = document.getElementById('selected-method-label');
   var methodGroups = document.getElementById('method-groups');
 
-  var methodFiles = [
-    'DCVCRT_bpp0.01052.mp4',
-    'GLVCvideo_bpp0.0099.mp4',
-    'VTM_bpp0.01489.mp4',
-    'VOV_noscaling_bpp0.01040.mp4',
-    'VOV_noscaling_bpp0.004473.mp4',
-    'VOV_scaling_1000_bpp0.010655.mp4',
-    'VOV_scaling_1000_bpp0.004782.mp4'
-  ];
+  var groupedMethods = {
+    Baselines: [
+      'Groundtruth_resize832x480.mp4',
+      'DCVCRT_bpp0.01052.mp4',
+      'GLVCvideo_bpp0.0099.mp4',
+      'VTM_bpp0.01489.mp4'
+    ],
+    VOV: [
+      'VOV_noscaling_bpp0.01040.mp4',
+      'VOV_noscaling_bpp0.004473.mp4'
+    ],
+    'VOV Scaling': [
+      'VOV_scaling_1000_bpp0.010655.mp4',
+      'VOV_scaling_1000_bpp0.004782.mp4'
+    ]
+  };
 
-  var methods = methodFiles.map(function(file) {
-    return {
-      file: file,
-      src: './static/videos/' + file,
-      name: formatMethodName(file),
-      bitrate: extractBitrate(file)
-    };
+  var methods = [];
+  Object.keys(groupedMethods).forEach(function(group) {
+    groupedMethods[group].forEach(function(file) {
+      methods.push({
+        group: group,
+        file: file,
+        src: './static/videos/' + file,
+        name: formatMethodName(file),
+        bitrate: extractBitrate(file)
+      });
+    });
   });
 
-  var selectedMethod = methods[0];
+  var selectedMethod = methods.find(function(method) {
+    return method.file !== 'Groundtruth_resize832x480.mp4';
+  }) || methods[0];
   rightVideo.src = selectedMethod.src;
 
   function renderSelectedLabel() {
-    label.textContent = 'Left: Ground Truth | Right: ' + selectedMethod.name + ' (' + selectedMethod.bitrate + ' bpp)';
+    var rightLabel = selectedMethod.bitrate ? selectedMethod.name + ' (bpp ' + selectedMethod.bitrate + ')' : selectedMethod.name;
+    label.textContent = 'Left: Ground Truth | Right: ' + rightLabel;
   }
 
   function selectMethod(method) {
@@ -80,44 +96,58 @@ function initVideoComparison() {
   }
 
   function renderMethodCards() {
-    methods.forEach(function(method) {
-      var card = document.createElement('div');
-      card.className = 'method-card';
-      card.dataset.file = method.file;
+    Object.keys(groupedMethods).forEach(function(groupName) {
+      var groupWrapper = document.createElement('div');
+      groupWrapper.className = 'method-group';
 
-      var preview = document.createElement('video');
-      preview.src = method.src;
-      preview.muted = true;
-      preview.defaultMuted = true;
-      preview.loop = true;
-      preview.autoplay = true;
-      preview.preload = 'metadata';
-      preview.playsInline = true;
-      preview.setAttribute('muted', '');
-      preview.setAttribute('playsinline', '');
+      var heading = document.createElement('h3');
+      heading.className = 'title is-5';
+      heading.textContent = groupName;
+      groupWrapper.appendChild(heading);
 
-      var name = document.createElement('div');
-      name.className = 'method-name';
-      name.textContent = method.name;
+      var grid = document.createElement('div');
+      grid.className = 'method-grid';
 
-      var bitrate = document.createElement('div');
-      bitrate.className = 'method-bitrate';
-      bitrate.textContent = method.bitrate + ' bpp';
+      methods.filter(function(m) {
+        return m.group === groupName;
+      }).forEach(function(method) {
+        var card = document.createElement('div');
+        card.className = 'method-card';
+        card.dataset.file = method.file;
 
-      card.appendChild(preview);
-      card.appendChild(name);
-      card.appendChild(bitrate);
-      card.addEventListener('click', function() {
-        selectMethod(method);
+        var preview = document.createElement('video');
+        preview.src = method.src;
+        preview.muted = true;
+        preview.loop = true;
+        preview.autoplay = true;
+        preview.playsInline = true;
+
+        var name = document.createElement('div');
+        name.className = 'method-name';
+        name.textContent = method.name;
+
+        var bitrate = document.createElement('div');
+        bitrate.className = 'method-bitrate';
+        bitrate.textContent = method.bitrate ? 'bpp ' + method.bitrate : 'Ground Truth';
+
+        card.appendChild(preview);
+        card.appendChild(name);
+        card.appendChild(bitrate);
+        card.addEventListener('click', function() {
+          selectMethod(method);
+        });
+
+        grid.appendChild(card);
       });
 
-      methodGroups.appendChild(card);
+      groupWrapper.appendChild(grid);
+      methodGroups.appendChild(groupWrapper);
     });
   }
 
   function setSplit(percent) {
     var clamped = Math.max(0, Math.min(100, percent));
-    rightVideo.style.clipPath = 'inset(0 0 0 ' + clamped + '%)';
+    overlay.style.width = (100 - clamped) + '%';
     divider.style.left = clamped + '%';
   }
 
