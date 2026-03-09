@@ -29,6 +29,18 @@ function extractBitrate(file) {
   return match ? match[1] : '';
 }
 
+function detectCodec(file) {
+  if (file.indexOf('VOV_') === 0) {
+    return 'mp4v.20.9';
+  }
+  return 'avc1.42E01E';
+}
+
+function browserCanPlayCodec(codec) {
+  var probe = document.createElement('video');
+  return !!probe.canPlayType('video/mp4; codecs="' + codec + '"');
+}
+
 function initVideoComparison() {
   var container = document.getElementById('video-compare');
   if (!container) return;
@@ -64,7 +76,8 @@ function initVideoComparison() {
         file: fileName,
         src: './static/videos/' + fileName,
         name: formatMethodName(fileName),
-        bitrate: extractBitrate(fileName)
+        bitrate: extractBitrate(fileName),
+        codec: detectCodec(fileName)
       });
     });
   });
@@ -89,11 +102,16 @@ function initVideoComparison() {
 
   function selectMethod(method) {
     selectedMethod = method;
-    rightVideo.src = method.src;
-    rightVideo.load();
-    rightVideo.currentTime = leftVideo.currentTime || 0;
-    rightVideo.play().catch(function() {});
-    renderSelectedLabel();
+
+    if (!browserCanPlayCodec(method.codec)) {
+      label.textContent = 'Left: Ground Truth | Right: ' + method.name + ' (bpp ' + method.bitrate + ') — codec not supported by this browser';
+    } else {
+      rightVideo.src = method.src;
+      rightVideo.load();
+      rightVideo.currentTime = leftVideo.currentTime || 0;
+      rightVideo.play().catch(function() {});
+      renderSelectedLabel();
+    }
 
     var cards = methodGroups.querySelectorAll('.method-card');
     cards.forEach(function(card) {
@@ -123,6 +141,10 @@ function initVideoComparison() {
         card.className = 'method-card';
         card.dataset.file = method.file;
 
+        if (!browserCanPlayCodec(method.codec)) {
+          card.classList.add('is-unsupported');
+        }
+
         var preview = document.createElement('video');
         preview.src = method.src;
         preview.muted = true;
@@ -140,7 +162,7 @@ function initVideoComparison() {
 
         var bitrate = document.createElement('div');
         bitrate.className = 'method-bitrate';
-        bitrate.textContent = 'bpp ' + method.bitrate;
+        bitrate.textContent = 'bpp ' + method.bitrate + (browserCanPlayCodec(method.codec) ? '' : ' (unsupported codec)');
 
         card.appendChild(preview);
         card.appendChild(name);

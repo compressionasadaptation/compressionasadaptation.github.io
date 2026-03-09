@@ -257,6 +257,14 @@ body {
   box-shadow: 0 0 0 2px hsla(204, 86%, 53%, 0.2);
 }
 
+.method-card.is-unsupported {
+  border-style: dashed;
+}
+
+.method-card.is-unsupported .method-bitrate {
+  color: #b86a00;
+}
+
 .method-card video {
   width: 100%;
   border-radius: 6px;
