@@ -155,3 +155,113 @@ body {
 #interpolation-image-wrapper img {
   border-radius: 5px;
 }
+
+.comparison-subtitle {
+  margin-bottom: 1rem;
+}
+
+.video-compare {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 832 / 480;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: ew-resize;
+  background: #111;
+  user-select: none;
+}
+
+.compare-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.compare-overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.compare-overlay .compare-video {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.compare-divider {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 2px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateX(-1px);
+  pointer-events: none;
+}
+
+.divider-grip {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  background: rgba(0, 0, 0, 0.6);
+  transform: translate(-50%, -50%);
+}
+
+.selected-method {
+  margin-top: 0.75rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.method-group {
+  margin-bottom: 1.75rem;
+}
+
+.method-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 0.9rem;
+}
+
+.method-card {
+  border: 1px solid #dbdbdb;
+  border-radius: 10px;
+  padding: 0.5rem;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.method-card:hover {
+  border-color: hsl(204, 86%, 53%);
+}
+
+.method-card.is-selected {
+  border-color: hsl(204, 86%, 53%);
+  box-shadow: 0 0 0 2px hsla(204, 86%, 53%, 0.2);
+}
+
+.method-card video {
+  width: 100%;
+  border-radius: 6px;
+  background: #111;
+}
+
+.method-name {
+  font-weight: 600;
+  margin-top: 0.45rem;
+}
+
+.method-bitrate {
+  color: #666;
+  font-size: 0.9rem;
+}
