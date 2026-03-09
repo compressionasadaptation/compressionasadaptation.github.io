@@ -223,17 +223,12 @@ body {
 }
 
 .method-groups {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 0.9rem;
-  overflow-x: auto;
-  padding-bottom: 0.4rem;
   margin-bottom: 1.5rem;
   font-weight: 600;
 }
 
 .method-group {
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.25rem;
 }
 
 .method-grid {

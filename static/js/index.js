@@ -21,13 +21,12 @@ function setInterpolationImage(i) {
 }
 
 function formatMethodName(file) {
-  var base = file.replace('.mp4', '');
-  return base.replace(/_bpp[0-9.]+$/, '').replace(/_/g, ' ');
+  return file.replace('.mp4', '').replace(/_bpp[0-9.]+$/, '').replace(/_/g, ' ');
 }
 
 function extractBitrate(file) {
   var match = file.match(/bpp([0-9.]+)/);
-  return match ? match[1] : null;
+  return match ? match[1] : '';
 }
 
 function initVideoComparison() {
@@ -42,12 +41,12 @@ function initVideoComparison() {
   var methodGroups = document.getElementById('method-groups');
 
   var groupedMethods = {
-    Baselines: [
+    'Baselines': [
       'DCVCRT_bpp0.01052.mp4',
       'GLVCvideo_bpp0.0099.mp4',
       'VTM_bpp0.01489.mp4'
     ],
-    VOV: [
+    'VOV': [
       'VOV_noscaling_bpp0.01040.mp4',
       'VOV_noscaling_bpp0.004473.mp4'
     ],
@@ -58,22 +57,34 @@ function initVideoComparison() {
   };
 
   var methods = [];
-  Object.keys(groupedMethods).forEach(function(group) {
-    groupedMethods[group].forEach(function(file) {
+  Object.keys(groupedMethods).forEach(function(groupName) {
+    groupedMethods[groupName].forEach(function(fileName) {
       methods.push({
-        group: group,
-        file: file,
-        src: './static/videos/' + file,
-        name: formatMethodName(file),
-        bitrate: extractBitrate(file)
+        group: groupName,
+        file: fileName,
+        src: './static/videos/' + fileName,
+        name: formatMethodName(fileName),
+        bitrate: extractBitrate(fileName)
       });
     });
   });
 
   var selectedMethod = methods[0];
+  var dragging = false;
 
   function renderSelectedLabel() {
     label.textContent = 'Left: Ground Truth | Right: ' + selectedMethod.name + ' (bpp ' + selectedMethod.bitrate + ')';
+  }
+
+  function setSplit(percent) {
+    var clamped = Math.max(0, Math.min(100, percent));
+    overlay.style.clipPath = 'inset(0 0 0 ' + clamped + '%)';
+    divider.style.left = clamped + '%';
+  }
+
+  function splitFromClientX(clientX) {
+    var rect = container.getBoundingClientRect();
+    return ((clientX - rect.left) / rect.width) * 100;
   }
 
   function selectMethod(method) {
@@ -97,68 +108,53 @@ function initVideoComparison() {
       var groupWrapper = document.createElement('div');
       groupWrapper.className = 'method-group';
 
-      var heading = document.createElement('h3');
-      heading.className = 'title is-5';
-      heading.textContent = groupName;
-      groupWrapper.appendChild(heading);
+      var title = document.createElement('h3');
+      title.className = 'title is-5';
+      title.textContent = groupName;
+      groupWrapper.appendChild(title);
 
       var grid = document.createElement('div');
       grid.className = 'method-grid';
 
-      methods
-        .filter(function(m) { return m.group === groupName; })
-        .forEach(function(method) {
-          var card = document.createElement('div');
-          card.className = 'method-card';
-          card.dataset.file = method.file;
+      methods.filter(function(m) {
+        return m.group === groupName;
+      }).forEach(function(method) {
+        var card = document.createElement('div');
+        card.className = 'method-card';
+        card.dataset.file = method.file;
 
-          var preview = document.createElement('video');
-          preview.src = method.src;
-          preview.muted = true;
-          preview.defaultMuted = true;
-          preview.loop = true;
-          preview.autoplay = true;
-          preview.preload = 'auto';
-          preview.playsInline = true;
-          preview.setAttribute('muted', '');
-          preview.setAttribute('playsinline', '');
+        var preview = document.createElement('video');
+        preview.src = method.src;
+        preview.muted = true;
+        preview.defaultMuted = true;
+        preview.loop = true;
+        preview.autoplay = true;
+        preview.preload = 'auto';
+        preview.playsInline = true;
+        preview.setAttribute('muted', '');
+        preview.setAttribute('playsinline', '');
 
-          var name = document.createElement('div');
-          name.className = 'method-name';
-          name.textContent = method.name;
+        var name = document.createElement('div');
+        name.className = 'method-name';
+        name.textContent = method.name;
 
-          var bitrate = document.createElement('div');
-          bitrate.className = 'method-bitrate';
-          bitrate.textContent = 'bpp ' + method.bitrate;
+        var bitrate = document.createElement('div');
+        bitrate.className = 'method-bitrate';
+        bitrate.textContent = 'bpp ' + method.bitrate;
 
-          card.appendChild(preview);
-          card.appendChild(name);
-          card.appendChild(bitrate);
-          card.addEventListener('click', function() {
-            selectMethod(method);
-          });
-
-          grid.appendChild(card);
+        card.appendChild(preview);
+        card.appendChild(name);
+        card.appendChild(bitrate);
+        card.addEventListener('click', function() {
+          selectMethod(method);
         });
+
+        grid.appendChild(card);
+      });
 
       groupWrapper.appendChild(grid);
       methodGroups.appendChild(groupWrapper);
     });
-  }
-
-  function setSplit(percent) {
-    var clamped = Math.max(0, Math.min(100, percent));
-    overlay.style.clipPath = 'inset(0 0 0 ' + clamped + '%)';
-    divider.style.left = clamped + '%';
-  }
-
-  function positionFromEvent(event) {
-    var rect = container.getBoundingClientRect();
-    var clientX = event.clientX;
-    if (event.touches && event.touches[0]) {
-      clientX = event.touches[0].clientX;
-    }
-    return ((clientX - rect.left) / rect.width) * 100;
   }
 
   function syncToLeft() {
@@ -167,33 +163,23 @@ function initVideoComparison() {
     }
   }
 
-  var dragging = false;
-
-  var startDrag = function(event) {
+  container.addEventListener('pointerdown', function(event) {
     dragging = true;
-    setSplit(positionFromEvent(event));
+    container.setPointerCapture(event.pointerId);
+    setSplit(splitFromClientX(event.clientX));
     event.preventDefault();
-  };
-
-  container.addEventListener('mousedown', startDrag);
-  container.addEventListener('touchstart', startDrag, { passive: false });
-
-  window.addEventListener('mousemove', function(event) {
-    if (!dragging) return;
-    setSplit(positionFromEvent(event));
   });
 
-  window.addEventListener('touchmove', function(event) {
+  container.addEventListener('pointermove', function(event) {
     if (!dragging) return;
-    setSplit(positionFromEvent(event));
-    event.preventDefault();
-  }, { passive: false });
+    setSplit(splitFromClientX(event.clientX));
+  });
 
-  window.addEventListener('mouseup', function() {
+  container.addEventListener('pointerup', function() {
     dragging = false;
   });
 
-  window.addEventListener('touchend', function() {
+  container.addEventListener('pointercancel', function() {
     dragging = false;
   });
 
@@ -229,13 +215,6 @@ $(document).ready(function() {
   var carousels = bulmaCarousel.attach('.carousel', options);
   for (var i = 0; i < carousels.length; i++) {
     carousels[i].on('before:show', function(state) {
-      console.log(state);
-    });
-  }
-
-  var element = document.querySelector('#my-element');
-  if (element && element.bulmaCarousel) {
-    element.bulmaCarousel.on('before-show', function(state) {
       console.log(state);
     });
   }
