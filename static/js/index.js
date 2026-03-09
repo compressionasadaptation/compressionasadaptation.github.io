@@ -59,12 +59,12 @@ function initVideoComparison() {
       'VTM_bpp0.01489.mp4'
     ],
     'VOV': [
-      'VOV_noscaling_bpp0.01040.mp4',
+      'VOV_noscaling_bpp0.010346.mp4',
       'VOV_noscaling_bpp0.004473.mp4'
     ],
     'VOV Scaling': [
-      'VOV_scaling_1000_bpp0.010655.mp4',
-      'VOV_scaling_1000_bpp0.004782.mp4'
+      'VOV_scaling_bpp0.010655.mp4',
+      'VOV_scaling_bpp0.004782.mp4'
     ]
   };
 
