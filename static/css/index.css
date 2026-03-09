@@ -169,6 +169,7 @@ body {
   cursor: ew-resize;
   background: #111;
   user-select: none;
+  touch-action: none;
 }
 
 .compare-video {
@@ -180,22 +181,16 @@ body {
 
 .compare-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  right: 0;
-  width: 50%;
-  height: 100%;
+  inset: 0;
   overflow: hidden;
+  pointer-events: none;
 }
 
 .compare-overlay .compare-video {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .compare-divider {
@@ -228,17 +223,12 @@ body {
 }
 
 .method-groups {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 0.9rem;
-  overflow-x: auto;
-  padding-bottom: 0.4rem;
   margin-bottom: 1.5rem;
   font-weight: 600;
 }
 
 .method-group {
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.25rem;
 }
 
 .method-grid {
@@ -265,6 +255,14 @@ body {
 .method-card.is-selected {
   border-color: hsl(204, 86%, 53%);
   box-shadow: 0 0 0 2px hsla(204, 86%, 53%, 0.2);
+}
+
+.method-card.is-unsupported {
+  border-style: dashed;
+}
+
+.method-card.is-unsupported .method-bitrate {
+  color: #b86a00;
 }
 
 .method-card video {
