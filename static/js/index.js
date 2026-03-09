@@ -1,6 +1,6 @@
 window.HELP_IMPROVE_VIDEOJS = false;
 
-var INTERP_BASE = "./static/interpolation/stacked";
+var INTERP_BASE = './static/interpolation/stacked';
 var NUM_INTERP_FRAMES = 240;
 
 var interp_images = [];
@@ -14,65 +14,237 @@ function preloadInterpolationImages() {
 
 function setInterpolationImage(i) {
   var image = interp_images[i];
+  if (!image) return;
   image.ondragstart = function() { return false; };
   image.oncontextmenu = function() { return false; };
   $('#interpolation-image-wrapper').empty().append(image);
 }
 
+function formatMethodName(file) {
+  var base = file.replace('.mp4', '');
+  var cleaned = base.replace(/_bpp[0-9.]+$/, '').replace(/_/g, ' ');
+  return cleaned;
+}
+
+function extractBitrate(file) {
+  var match = file.match(/bpp([0-9.]+)/);
+  return match ? match[1] : null;
+}
+
+function initVideoComparison() {
+  var container = document.getElementById('video-compare');
+  if (!container) return;
+
+  var leftVideo = document.getElementById('left-video');
+  var rightVideo = document.getElementById('right-video');
+  var overlay = document.getElementById('compare-overlay');
+  var divider = document.getElementById('compare-divider');
+  var label = document.getElementById('selected-method-label');
+  var methodGroups = document.getElementById('method-groups');
+
+  var groupedMethods = {
+    Baselines: [
+      'Groundtruth_resize832x480.mp4',
+      'DCVCRT_bpp0.01052.mp4',
+      'GLVCvideo_bpp0.0099.mp4',
+      'VTM_bpp0.01489.mp4'
+    ],
+    VOV: [
+      'VOV_noscaling_bpp0.01040.mp4',
+      'VOV_noscaling_bpp0.004473.mp4'
+    ],
+    'VOV Scaling': [
+      'VOV_scaling_1000_bpp0.010655.mp4',
+      'VOV_scaling_1000_bpp0.004782.mp4'
+    ]
+  };
+
+  var methods = [];
+  Object.keys(groupedMethods).forEach(function(group) {
+    groupedMethods[group].forEach(function(file) {
+      methods.push({
+        group: group,
+        file: file,
+        src: './static/videos/' + file,
+        name: formatMethodName(file),
+        bitrate: extractBitrate(file)
+      });
+    });
+  });
+
+  var selectedMethod = methods.find(function(method) {
+    return method.file !== 'Groundtruth_resize832x480.mp4';
+  }) || methods[0];
+  rightVideo.src = selectedMethod.src;
+
+  function renderSelectedLabel() {
+    var rightLabel = selectedMethod.bitrate ? selectedMethod.name + ' (bpp ' + selectedMethod.bitrate + ')' : selectedMethod.name;
+    label.textContent = 'Left: Ground Truth | Right: ' + rightLabel;
+  }
+
+  function selectMethod(method) {
+    selectedMethod = method;
+    rightVideo.src = method.src;
+    rightVideo.currentTime = leftVideo.currentTime || 0;
+    rightVideo.play().catch(function() {});
+    renderSelectedLabel();
+
+    var cards = methodGroups.querySelectorAll('.method-card');
+    cards.forEach(function(card) {
+      card.classList.toggle('is-selected', card.dataset.file === method.file);
+    });
+  }
+
+  function renderMethodCards() {
+    Object.keys(groupedMethods).forEach(function(groupName) {
+      var groupWrapper = document.createElement('div');
+      groupWrapper.className = 'method-group';
+
+      var heading = document.createElement('h3');
+      heading.className = 'title is-5';
+      heading.textContent = groupName;
+      groupWrapper.appendChild(heading);
+
+      var grid = document.createElement('div');
+      grid.className = 'method-grid';
+
+      methods.filter(function(m) {
+        return m.group === groupName;
+      }).forEach(function(method) {
+        var card = document.createElement('div');
+        card.className = 'method-card';
+        card.dataset.file = method.file;
+
+        var preview = document.createElement('video');
+        preview.src = method.src;
+        preview.muted = true;
+        preview.loop = true;
+        preview.autoplay = true;
+        preview.playsInline = true;
+
+        var name = document.createElement('div');
+        name.className = 'method-name';
+        name.textContent = method.name;
+
+        var bitrate = document.createElement('div');
+        bitrate.className = 'method-bitrate';
+        bitrate.textContent = method.bitrate ? 'bpp ' + method.bitrate : 'Ground Truth';
+
+        card.appendChild(preview);
+        card.appendChild(name);
+        card.appendChild(bitrate);
+        card.addEventListener('click', function() {
+          selectMethod(method);
+        });
+
+        grid.appendChild(card);
+      });
+
+      groupWrapper.appendChild(grid);
+      methodGroups.appendChild(groupWrapper);
+    });
+  }
+
+  function setSplit(percent) {
+    var clamped = Math.max(0, Math.min(100, percent));
+    overlay.style.width = (100 - clamped) + '%';
+    divider.style.left = clamped + '%';
+  }
+
+  function positionFromEvent(event) {
+    var rect = container.getBoundingClientRect();
+    var clientX = event.clientX;
+    if (event.touches && event.touches[0]) {
+      clientX = event.touches[0].clientX;
+    }
+    return ((clientX - rect.left) / rect.width) * 100;
+  }
+
+  function syncToLeft() {
+    if (Math.abs(rightVideo.currentTime - leftVideo.currentTime) > 0.08) {
+      rightVideo.currentTime = leftVideo.currentTime;
+    }
+  }
+
+  var dragging = false;
+  var startDrag = function(event) {
+    dragging = true;
+    setSplit(positionFromEvent(event));
+  };
+
+  container.addEventListener('mousedown', startDrag);
+  container.addEventListener('touchstart', startDrag, { passive: true });
+
+  window.addEventListener('mousemove', function(event) {
+    if (!dragging) return;
+    setSplit(positionFromEvent(event));
+  });
+
+  window.addEventListener('touchmove', function(event) {
+    if (!dragging) return;
+    setSplit(positionFromEvent(event));
+  }, { passive: true });
+
+  window.addEventListener('mouseup', function() {
+    dragging = false;
+  });
+
+  window.addEventListener('touchend', function() {
+    dragging = false;
+  });
+
+  leftVideo.addEventListener('play', function() {
+    rightVideo.play().catch(function() {});
+  });
+  leftVideo.addEventListener('pause', function() {
+    rightVideo.pause();
+  });
+  leftVideo.addEventListener('seeking', syncToLeft);
+  leftVideo.addEventListener('timeupdate', syncToLeft);
+
+  renderMethodCards();
+  selectMethod(selectedMethod);
+  setSplit(50);
+}
 
 $(document).ready(function() {
-    // Check for click events on the navbar burger icon
-    $(".navbar-burger").click(function() {
-      // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
-      $(".navbar-burger").toggleClass("is-active");
-      $(".navbar-menu").toggleClass("is-active");
+  $('.navbar-burger').click(function() {
+    $('.navbar-burger').toggleClass('is-active');
+    $('.navbar-menu').toggleClass('is-active');
+  });
 
+  var options = {
+    slidesToScroll: 1,
+    slidesToShow: 3,
+    loop: true,
+    infinite: true,
+    autoplay: false,
+    autoplaySpeed: 3000
+  };
+
+  var carousels = bulmaCarousel.attach('.carousel', options);
+  for (var i = 0; i < carousels.length; i++) {
+    carousels[i].on('before:show', function(state) {
+      console.log(state);
     });
+  }
 
-    var options = {
-			slidesToScroll: 1,
-			slidesToShow: 3,
-			loop: true,
-			infinite: true,
-			autoplay: false,
-			autoplaySpeed: 3000,
-    }
+  var element = document.querySelector('#my-element');
+  if (element && element.bulmaCarousel) {
+    element.bulmaCarousel.on('before-show', function(state) {
+      console.log(state);
+    });
+  }
 
-		// Initialize all div with carousel class
-    var carousels = bulmaCarousel.attach('.carousel', options);
-
-    // Loop on each carousel initialized
-    for(var i = 0; i < carousels.length; i++) {
-    	// Add listener to  event
-    	carousels[i].on('before:show', state => {
-    		console.log(state);
-    	});
-    }
-
-    // Access to bulmaCarousel instance of an element
-    var element = document.querySelector('#my-element');
-    if (element && element.bulmaCarousel) {
-    	// bulmaCarousel instance is available as element.bulmaCarousel
-    	element.bulmaCarousel.on('before-show', function(state) {
-    		console.log(state);
-    	});
-    }
-
-    /*var player = document.getElementById('interpolation-video');
-    player.addEventListener('loadedmetadata', function() {
-      $('#interpolation-slider').on('input', function(event) {
-        console.log(this.value, player.duration);
-        player.currentTime = player.duration / 100 * this.value;
-      })
-    }, false);*/
+  if ($('#interpolation-image-wrapper').length && $('#interpolation-slider').length) {
     preloadInterpolationImages();
-
-    $('#interpolation-slider').on('input', function(event) {
+    $('#interpolation-slider').on('input', function() {
       setInterpolationImage(this.value);
     });
     setInterpolationImage(0);
     $('#interpolation-slider').prop('max', NUM_INTERP_FRAMES - 1);
+  }
 
-    bulmaSlider.attach();
-
-})
+  bulmaSlider.attach();
+  initVideoComparison();
+});

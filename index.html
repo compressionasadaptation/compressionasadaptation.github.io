@@ -156,6 +156,26 @@
   </div>
 </section>
 
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Compression Performance Comparison</h2>
+    <p class="has-text-centered comparison-subtitle">Drag left/right to compare Ground Truth with a selected compression method.</p>
+
+    <div class="video-compare" id="video-compare">
+      <video id="left-video" class="compare-video" src="./static/videos/Groundtruth_resize832x480.mp4" autoplay loop muted playsinline></video>
+      <div class="compare-overlay" id="compare-overlay">
+        <video id="right-video" class="compare-video" autoplay loop muted playsinline></video>
+      </div>
+      <div class="compare-divider" id="compare-divider">
+        <div class="divider-grip"></div>
+      </div>
+    </div>
+
+    <div class="selected-method has-text-centered" id="selected-method-label"></div>
+
+    <div class="method-groups" id="method-groups"></div>
+  </div>
+</section>
 
 
 <footer class="footer">
