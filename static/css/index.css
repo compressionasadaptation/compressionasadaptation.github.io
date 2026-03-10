@@ -186,6 +186,14 @@ body {
   min-width: 0;
 }
 
+.method-comparison-figure:first-child {
+  flex: 2 1 0;
+}
+
+.method-comparison-figure:last-child {
+  flex: 1 1 0;
+}
+
 .method-comparison-media {
   height: clamp(180px, 28vw, 320px);
   display: flex;
