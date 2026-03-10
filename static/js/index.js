@@ -122,61 +122,48 @@ function initVideoComparison() {
   function renderMethodCards() {
     methodGroups.innerHTML = '';
 
-    Object.keys(groupedMethods).forEach(function(groupName) {
-      var groupWrapper = document.createElement('div');
-      groupWrapper.className = 'method-group';
+    var grid = document.createElement('div');
+    grid.className = 'method-grid';
 
-      var title = document.createElement('h3');
-      title.className = 'title is-5';
-      title.textContent = groupName;
-      groupWrapper.appendChild(title);
+    methods.forEach(function(method) {
+      var card = document.createElement('div');
+      card.className = 'method-card';
+      card.dataset.file = method.file;
 
-      var grid = document.createElement('div');
-      grid.className = 'method-grid';
+      if (!browserCanPlayCodec(method.codec)) {
+        card.classList.add('is-unsupported');
+      }
 
-      methods.filter(function(m) {
-        return m.group === groupName;
-      }).forEach(function(method) {
-        var card = document.createElement('div');
-        card.className = 'method-card';
-        card.dataset.file = method.file;
+      var preview = document.createElement('video');
+      preview.src = method.src;
+      preview.muted = true;
+      preview.defaultMuted = true;
+      preview.loop = true;
+      preview.autoplay = true;
+      preview.preload = 'auto';
+      preview.playsInline = true;
+      preview.setAttribute('muted', '');
+      preview.setAttribute('playsinline', '');
 
-        if (!browserCanPlayCodec(method.codec)) {
-          card.classList.add('is-unsupported');
-        }
+      var name = document.createElement('div');
+      name.className = 'method-name';
+      name.textContent = method.name;
 
-        var preview = document.createElement('video');
-        preview.src = method.src;
-        preview.muted = true;
-        preview.defaultMuted = true;
-        preview.loop = true;
-        preview.autoplay = true;
-        preview.preload = 'auto';
-        preview.playsInline = true;
-        preview.setAttribute('muted', '');
-        preview.setAttribute('playsinline', '');
+      var bitrate = document.createElement('div');
+      bitrate.className = 'method-bitrate';
+      bitrate.textContent = 'bpp ' + method.bitrate + (browserCanPlayCodec(method.codec) ? '' : ' (unsupported codec)');
 
-        var name = document.createElement('div');
-        name.className = 'method-name';
-        name.textContent = method.name;
-
-        var bitrate = document.createElement('div');
-        bitrate.className = 'method-bitrate';
-        bitrate.textContent = 'bpp ' + method.bitrate + (browserCanPlayCodec(method.codec) ? '' : ' (unsupported codec)');
-
-        card.appendChild(preview);
-        card.appendChild(name);
-        card.appendChild(bitrate);
-        card.addEventListener('click', function() {
-          selectMethod(method);
-        });
-
-        grid.appendChild(card);
+      card.appendChild(preview);
+      card.appendChild(name);
+      card.appendChild(bitrate);
+      card.addEventListener('click', function() {
+        selectMethod(method);
       });
 
-      groupWrapper.appendChild(grid);
-      methodGroups.appendChild(groupWrapper);
+      grid.appendChild(card);
     });
+
+    methodGroups.appendChild(grid);
   }
 
   function syncToLeft() {

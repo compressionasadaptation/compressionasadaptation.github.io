@@ -233,19 +233,17 @@ body {
 
 .method-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  gap: 0.9rem;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
 }
 
 .method-card {
   border: 1px solid #dbdbdb;
   border-radius: 10px;
-  padding: 0.5rem;
+  padding: 0.45rem;
   background: #fff;
   cursor: pointer;
   transition: border-color 0.2s, box-shadow 0.2s;
-  min-width: 190px;
-  flex: 0 0 190px;
 }
 
 .method-card:hover {
@@ -279,4 +277,10 @@ body {
 .method-bitrate {
   color: #666;
   font-size: 0.9rem;
+}
+
+@media (min-width: 1024px) {
+  .method-grid {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
 }
