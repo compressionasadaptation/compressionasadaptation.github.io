@@ -27,8 +27,12 @@ function formatMethodName(file) {
     .replace(/_bpp[0-9.]+$/, '')
     .replace(/_/g, ' ');
 
-  if (name === 'VOV' || name === 'VOV scaling') {
-    return name + ' (ours)';
+  if (name === 'VOV') {
+    return 'Ours';
+  }
+
+  if (name === 'VOV scaling') {
+    return 'Ours w. scaling';
   }
 
   return name;

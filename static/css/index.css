@@ -173,6 +173,23 @@ body {
   margin-bottom: 1rem;
 }
 
+.method-comparison-figure {
+  margin: 0;
+}
+
+.method-comparison-image {
+  display: block;
+  width: 100%;
+  border-radius: 12px;
+}
+
+.method-comparison-caption {
+  margin: 0.9rem auto 0;
+  max-width: 960px;
+  color: #555;
+  line-height: 1.5;
+}
+
 
 .dataset-toggle {
   margin-bottom: 0.9rem;
