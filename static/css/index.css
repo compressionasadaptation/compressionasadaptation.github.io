@@ -265,6 +265,13 @@ body {
   line-height: 1.5;
 }
 
+.compression-scaling-intro {
+  margin: 0 auto 1rem;
+  max-width: 960px;
+  color: #555;
+  line-height: 1.6;
+}
+
 @media (max-width: 768px) {
   .compression-results-grid {
     grid-template-columns: 1fr;
