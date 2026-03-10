@@ -23,7 +23,7 @@ function setInterpolationImage(i) {
 function formatMethodName(file) {
   var name = file
     .replace('.mp4', '')
-    .replace(/^horse_/, '')
+    .replace(/^(horse_|BasketballDrive_)/, '')
     .replace(/_bpp[0-9.]+$/, '')
     .replace(/_/g, ' ');
 
@@ -98,6 +98,24 @@ function initVideoComparison() {
         'VOV Scaling': [
           'horse_VOV_scaling_bpp0.013322.mp4',
           'horse_VOV_scaling_bpp0.008035.mp4'
+        ]
+      }
+    },
+    basketballdrive: {
+      left: './static/videos/BasketballDrive_Groundtruth_resize832x480.mp4',
+      groups: {
+        'Baselines': [
+          'BasketballDrive_DCVCRT_bpp0.01259.mp4',
+          'BasketballDrive_GLVCvideo_bpp0.01115.mp4',
+          'BasketballDrive_VTM_bpp0.01462.mp4'
+        ],
+        'VOV': [
+          'BasketballDrive_VOV_bpp0.013290.mp4',
+          'BasketballDrive_VOV_bpp0.007516.mp4'
+        ],
+        'VOV Scaling': [
+          'BasketballDrive_VOV_scaling_bpp0.013599.mp4',
+          'BasketballDrive_VOV_scaling_bpp0.007825.mp4'
         ]
       }
     }
