@@ -173,6 +173,21 @@ body {
   margin-bottom: 1rem;
 }
 
+
+.dataset-toggle {
+  margin-bottom: 0.9rem;
+}
+
+.dataset-toggle .button {
+  margin: 0 0.25rem;
+}
+
+.dataset-toggle .button.is-selected {
+  background-color: hsl(204, 86%, 53%);
+  border-color: hsl(204, 86%, 53%);
+  color: #fff;
+}
+
 .video-compare {
   position: relative;
   width: 100%;

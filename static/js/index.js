@@ -21,7 +21,11 @@ function setInterpolationImage(i) {
 }
 
 function formatMethodName(file) {
-  return file.replace('.mp4', '').replace(/_bpp[0-9.]+$/, '').replace(/_/g, ' ');
+  return file
+    .replace('.mp4', '')
+    .replace(/^horse_/, '')
+    .replace(/_bpp[0-9.]+$/, '')
+    .replace(/_/g, ' ');
 }
 
 function extractBitrate(file) {
@@ -48,39 +52,50 @@ function initVideoComparison() {
   var label = document.getElementById('selected-method-label');
   var methodGroups = document.getElementById('method-groups');
 
-  var groupedMethods = {
-    'Baselines': [
-      'DCVCRT_bpp0.01052.mp4',
-      'GLVCvideo_bpp0.0099.mp4',
-      'VTM_bpp0.01489.mp4'
-    ],
-    'VOV': [
-      'VOV_bpp0.010346.mp4',
-      'VOV_bpp0.004473.mp4'
-    ],
-    'VOV Scaling': [
-      'VOV_scaling_bpp0.010655.mp4',
-      'VOV_scaling_bpp0.004782.mp4'
-    ]
+  var datasetToggle = document.getElementById('dataset-toggle');
+
+  var datasets = {
+    beauty: {
+      left: './static/videos/Groundtruth_resize832x480.mp4',
+      groups: {
+        'Baselines': [
+          'DCVCRT_bpp0.01052.mp4',
+          'GLVCvideo_bpp0.0099.mp4',
+          'VTM_bpp0.01489.mp4'
+        ],
+        'VOV': [
+          'VOV_bpp0.010346.mp4',
+          'VOV_bpp0.004473.mp4'
+        ],
+        'VOV Scaling': [
+          'VOV_scaling_bpp0.010655.mp4',
+          'VOV_scaling_bpp0.004782.mp4'
+        ]
+      }
+    },
+    racehorse: {
+      left: './static/videos/horse_Groundtruth_resize832x480.mp4',
+      groups: {
+        'Baselines': [
+          'horse_DCVCRT_bpp0.01464.mp4',
+          'horse_GLVCvideo_bpp0.01399.mp4',
+          'horse_VTM_bpp0.01514.mp4'
+        ],
+        'VOV': [
+          'horse_VOV_bpp0.013013.mp4',
+          'horse_VOV_bpp0.007726.mp4'
+        ],
+        'VOV Scaling': [
+          'horse_VOV_scaling_bpp0.013322.mp4',
+          'horse_VOV_scaling_bpp0.008035.mp4'
+        ]
+      }
+    }
   };
 
   var methods = [];
-  Object.keys(groupedMethods).forEach(function(groupName) {
-    groupedMethods[groupName].forEach(function(fileName) {
-      methods.push({
-        group: groupName,
-        file: fileName,
-        src: './static/videos/' + fileName,
-        name: formatMethodName(fileName),
-        bitrate: extractBitrate(fileName),
-        isSupported: null,
-        cardElement: null,
-        bitrateElement: null
-      });
-    });
-  });
-
-  var selectedMethod = methods[0];
+  var selectedMethod = null;
+  var activeDataset = 'beauty';
   var dragging = false;
 
   function renderSelectedLabel() {
@@ -145,6 +160,43 @@ function initVideoComparison() {
     cards.forEach(function(card) {
       card.classList.toggle('is-selected', card.dataset.file === method.file);
     });
+  }
+
+  function loadDataset(datasetName) {
+    var dataset = datasets[datasetName];
+    if (!dataset) return;
+
+    activeDataset = datasetName;
+    leftVideo.src = dataset.left;
+    leftVideo.load();
+    leftVideo.play().catch(function() {});
+
+    methods = [];
+    Object.keys(dataset.groups).forEach(function(groupName) {
+      dataset.groups[groupName].forEach(function(fileName) {
+        methods.push({
+          group: groupName,
+          file: fileName,
+          src: './static/videos/' + fileName,
+          name: formatMethodName(fileName),
+          bitrate: extractBitrate(fileName),
+          isSupported: null,
+          cardElement: null,
+          bitrateElement: null
+        });
+      });
+    });
+
+    selectedMethod = methods[0];
+    renderMethodCards();
+    selectMethod(selectedMethod);
+
+    if (datasetToggle) {
+      var buttons = datasetToggle.querySelectorAll('button[data-dataset]');
+      buttons.forEach(function(button) {
+        button.classList.toggle('is-selected', button.dataset.dataset === datasetName);
+      });
+    }
   }
 
   function renderMethodCards() {
@@ -241,8 +293,15 @@ function initVideoComparison() {
     setMethodSupport(selectedMethod, false);
   });
 
-  renderMethodCards();
-  selectMethod(selectedMethod);
+  if (datasetToggle) {
+    datasetToggle.addEventListener('click', function(event) {
+      var button = event.target.closest('button[data-dataset]');
+      if (!button || button.dataset.dataset === activeDataset) return;
+      loadDataset(button.dataset.dataset);
+    });
+  }
+
+  loadDataset(activeDataset);
   setSplit(50);
 }
 
