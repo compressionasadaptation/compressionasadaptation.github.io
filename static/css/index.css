@@ -187,11 +187,11 @@ body {
 }
 
 .method-comparison-figure:first-child {
-  flex: 2 1 0;
+  flex: 5 1 0;
 }
 
 .method-comparison-figure:last-child {
-  flex: 1 1 0;
+  flex: 2 1 0;
 }
 
 .method-comparison-media {
@@ -224,6 +224,23 @@ body {
   .method-comparison-media {
     height: 180px;
   }
+}
+
+.representation-results-figure {
+  margin: 0;
+}
+
+.representation-results-image {
+  display: block;
+  width: 100%;
+  border-radius: 12px;
+}
+
+.representation-results-caption {
+  margin: 0.9rem auto 0;
+  max-width: 960px;
+  color: #555;
+  line-height: 1.5;
 }
 
 
