@@ -276,7 +276,7 @@
 
 <section class="section" id="compression-scaling-section">
   <div class="container is-max-desktop">
-    <h2 class="title is-3 has-text-centered">Compresion inference-time scaling</h2>
+    <h2 class="title is-3 has-text-centered">Compression inference-time scaling</h2>
     <p class="compression-scaling-intro has-text-centered">
       We identity a key advantage of functional representation: it supports inference-time scaling for better performance naturally. In our framework, we can generate multiple samples per denoising steps, and select the most promising one for better compression quality.
     </p>
@@ -287,6 +287,21 @@
         alt="Compression inference-time scaling results.">
       <figcaption class="representation-results-caption has-text-centered">
         Reconstruction quality by inference-time scaling with different number of steps and different sample sizes per step.
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="section" id="editing-results-section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Editing Results</h2>
+    <figure class="representation-results-figure">
+      <img
+        class="representation-results-image"
+        src="./static/images/edit_image.png"
+        alt="Editing results using LoRA-based representations.">
+      <figcaption class="representation-results-caption has-text-centered">
+        We can use the LoRA-based representations for controlled generation, such as image editing or merging
       </figcaption>
     </figure>
   </div>
