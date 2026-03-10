@@ -177,15 +177,17 @@ body {
   display: flex;
   gap: 1.25rem;
   align-items: flex-start;
+  flex-wrap: nowrap;
 }
 
 .method-comparison-figure {
   margin: 0;
   flex: 1 1 0;
+  min-width: 0;
 }
 
 .method-comparison-media {
-  height: 320px;
+  height: clamp(180px, 28vw, 320px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -208,16 +210,11 @@ body {
 
 @media (max-width: 768px) {
   .method-comparison-grid {
-    flex-direction: column;
+    gap: 0.75rem;
   }
 
   .method-comparison-media {
-    height: auto;
-  }
-
-  .method-comparison-image {
-    width: 100%;
-    height: auto;
+    height: 180px;
   }
 }
 
