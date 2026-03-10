@@ -161,6 +161,11 @@
     <h2 class="title is-3 has-text-centered">Compression Performance Comparison</h2>
     <p class="has-text-centered comparison-subtitle">Drag to compare Ground Truth (left) and the selected compressed result (right).</p>
 
+    <div class="dataset-toggle has-text-centered" id="dataset-toggle">
+      <button class="button is-light is-small is-selected" data-dataset="beauty">Beauty</button>
+      <button class="button is-light is-small" data-dataset="racehorse">RaceHorse</button>
+    </div>
+
     <div class="video-compare" id="video-compare">
       <video id="left-video" class="compare-video" src="./static/videos/Groundtruth_resize832x480.mp4" autoplay loop muted playsinline></video>
       <div class="compare-overlay" id="compare-overlay">
