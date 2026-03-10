@@ -30,19 +30,11 @@ function extractBitrate(file) {
 }
 
 function formatBitrateLabel(bitrate) {
-  return bitrate + ' bpp';
+  return bitrate.replace(/\./g, '') + ' bpp';
 }
 
-function detectCodec(file) {
-  if (file.indexOf('VOV_') === 0) {
-    return 'mp4v.20.9';
-  }
-  return 'avc1.42E01E';
-}
-
-function browserCanPlayCodec(codec) {
-  var probe = document.createElement('video');
-  return !!probe.canPlayType('video/mp4; codecs="' + codec + '"');
+function getUnsupportedSuffix(method) {
+  return method.isSupported === false ? ' (unsupported codec)' : '';
 }
 
 function initVideoComparison() {
@@ -81,7 +73,9 @@ function initVideoComparison() {
         src: './static/videos/' + fileName,
         name: formatMethodName(fileName),
         bitrate: extractBitrate(fileName),
-        codec: detectCodec(fileName)
+        isSupported: null,
+        cardElement: null,
+        bitrateElement: null
       });
     });
   });
@@ -90,7 +84,36 @@ function initVideoComparison() {
   var dragging = false;
 
   function renderSelectedLabel() {
-    label.textContent = 'Left: Ground Truth | Right: ' + selectedMethod.name + ' (' + formatBitrateLabel(selectedMethod.bitrate) + ')';
+    var text = 'Left: Ground Truth | Right: ' + selectedMethod.name + ' (' + formatBitrateLabel(selectedMethod.bitrate) + ')';
+    if (selectedMethod.isSupported === false) {
+      text += ' - video could not be loaded in this browser';
+    }
+    label.textContent = text;
+  }
+
+  function clearRightVideo() {
+    rightVideo.pause();
+    rightVideo.removeAttribute('src');
+    rightVideo.load();
+  }
+
+  function updateMethodCard(method) {
+    if (!method.cardElement || !method.bitrateElement) return;
+    method.cardElement.classList.toggle('is-unsupported', method.isSupported === false);
+    method.bitrateElement.textContent = formatBitrateLabel(method.bitrate) + getUnsupportedSuffix(method);
+  }
+
+  function setMethodSupport(method, isSupported) {
+    if (method.isSupported === isSupported) return;
+    method.isSupported = isSupported;
+    updateMethodCard(method);
+
+    if (selectedMethod.file === method.file) {
+      if (isSupported === false) {
+        clearRightVideo();
+      }
+      renderSelectedLabel();
+    }
   }
 
   function setSplit(percent) {
@@ -107,8 +130,9 @@ function initVideoComparison() {
   function selectMethod(method) {
     selectedMethod = method;
 
-    if (!browserCanPlayCodec(method.codec)) {
-      label.textContent = 'Left: Ground Truth | Right: ' + method.name + ' (' + formatBitrateLabel(method.bitrate) + ') — codec not supported by this browser';
+    if (method.isSupported === false) {
+      clearRightVideo();
+      renderSelectedLabel();
     } else {
       rightVideo.src = method.src;
       rightVideo.load();
@@ -134,10 +158,6 @@ function initVideoComparison() {
       card.className = 'method-card';
       card.dataset.file = method.file;
 
-      if (!browserCanPlayCodec(method.codec)) {
-        card.classList.add('is-unsupported');
-      }
-
       var preview = document.createElement('video');
       preview.src = method.src;
       preview.muted = true;
@@ -155,7 +175,17 @@ function initVideoComparison() {
 
       var bitrate = document.createElement('div');
       bitrate.className = 'method-bitrate';
-      bitrate.textContent = formatBitrateLabel(method.bitrate) + (browserCanPlayCodec(method.codec) ? '' : ' (unsupported codec)');
+      bitrate.textContent = formatBitrateLabel(method.bitrate);
+
+      preview.addEventListener('loadeddata', function() {
+        setMethodSupport(method, true);
+      });
+      preview.addEventListener('error', function() {
+        setMethodSupport(method, false);
+      });
+
+      method.cardElement = card;
+      method.bitrateElement = bitrate;
 
       card.appendChild(preview);
       card.appendChild(name);
@@ -204,6 +234,12 @@ function initVideoComparison() {
   });
   leftVideo.addEventListener('seeking', syncToLeft);
   leftVideo.addEventListener('timeupdate', syncToLeft);
+  rightVideo.addEventListener('loadeddata', function() {
+    setMethodSupport(selectedMethod, true);
+  });
+  rightVideo.addEventListener('error', function() {
+    setMethodSupport(selectedMethod, false);
+  });
 
   renderMethodCards();
   selectMethod(selectedMethod);
