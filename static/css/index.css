@@ -272,6 +272,22 @@ body {
   line-height: 1.6;
 }
 
+.editing-results-video-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.editing-results-video {
+  display: block;
+  width: 50%;
+  flex: 1 1 0;
+  min-width: 0;
+  border-radius: 12px;
+  background: #111;
+}
+
 @media (max-width: 768px) {
   .compression-results-grid {
     grid-template-columns: 1fr;
