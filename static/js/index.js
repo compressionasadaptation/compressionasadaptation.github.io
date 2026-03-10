@@ -29,6 +29,10 @@ function extractBitrate(file) {
   return match ? match[1] : '';
 }
 
+function formatBitrateLabel(bitrate) {
+  return bitrate + ' bpp';
+}
+
 function detectCodec(file) {
   if (file.indexOf('VOV_') === 0) {
     return 'mp4v.20.9';
@@ -86,7 +90,7 @@ function initVideoComparison() {
   var dragging = false;
 
   function renderSelectedLabel() {
-    label.textContent = 'Left: Ground Truth | Right: ' + selectedMethod.name + ' (bpp ' + selectedMethod.bitrate + ')';
+    label.textContent = 'Left: Ground Truth | Right: ' + selectedMethod.name + ' (' + formatBitrateLabel(selectedMethod.bitrate) + ')';
   }
 
   function setSplit(percent) {
@@ -104,7 +108,7 @@ function initVideoComparison() {
     selectedMethod = method;
 
     if (!browserCanPlayCodec(method.codec)) {
-      label.textContent = 'Left: Ground Truth | Right: ' + method.name + ' (bpp ' + method.bitrate + ') — codec not supported by this browser';
+      label.textContent = 'Left: Ground Truth | Right: ' + method.name + ' (' + formatBitrateLabel(method.bitrate) + ') — codec not supported by this browser';
     } else {
       rightVideo.src = method.src;
       rightVideo.load();
@@ -151,7 +155,7 @@ function initVideoComparison() {
 
       var bitrate = document.createElement('div');
       bitrate.className = 'method-bitrate';
-      bitrate.textContent = 'bpp ' + method.bitrate + (browserCanPlayCodec(method.codec) ? '' : ' (unsupported codec)');
+      bitrate.textContent = formatBitrateLabel(method.bitrate) + (browserCanPlayCodec(method.codec) ? '' : ' (unsupported codec)');
 
       card.appendChild(preview);
       card.appendChild(name);
