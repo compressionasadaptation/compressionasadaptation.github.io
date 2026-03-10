@@ -243,6 +243,34 @@ body {
   line-height: 1.5;
 }
 
+.compression-results-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.compression-results-figure {
+  margin: 0;
+}
+
+.compression-results-image {
+  display: block;
+  width: 100%;
+  border-radius: 12px;
+}
+
+.compression-results-caption {
+  margin: 0.75rem auto 0;
+  color: #555;
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .compression-results-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 
 .dataset-toggle {
   margin-bottom: 0.9rem;
