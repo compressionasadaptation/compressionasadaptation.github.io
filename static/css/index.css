@@ -288,6 +288,16 @@ body {
   background: #111;
 }
 
+.reference-entry {
+  margin: 0;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  background: #f5f5f5;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
 @media (max-width: 768px) {
   .compression-results-grid {
     grid-template-columns: 1fr;
