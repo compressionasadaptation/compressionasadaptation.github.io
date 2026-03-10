@@ -25,12 +25,12 @@ function formatMethodName(file) {
 }
 
 function extractBitrate(file) {
-  var match = file.match(/bpp([0-9.]+)/);
+  var match = file.match(/bpp([0-9]+(?:\.[0-9]+)?)(?:\.mp4)?$/);
   return match ? match[1] : '';
 }
 
 function formatBitrateLabel(bitrate) {
-  return bitrate.replace(/\./g, '') + ' bpp';
+  return bitrate + ' bpp';
 }
 
 function getUnsupportedSuffix(method) {
