@@ -21,11 +21,17 @@ function setInterpolationImage(i) {
 }
 
 function formatMethodName(file) {
-  return file
+  var name = file
     .replace('.mp4', '')
     .replace(/^horse_/, '')
     .replace(/_bpp[0-9.]+$/, '')
     .replace(/_/g, ' ');
+
+  if (name === 'VOV' || name === 'VOV scaling') {
+    return name + ' (ours)';
+  }
+
+  return name;
 }
 
 function extractBitrate(file) {
