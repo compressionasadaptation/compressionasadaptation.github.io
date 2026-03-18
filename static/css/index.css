@@ -274,16 +274,20 @@ body {
 
 .editing-results-video-grid {
   display: flex;
+  flex-direction: column;
   flex-wrap: nowrap;
   gap: 1rem;
   margin-top: 1rem;
 }
 
+.editing-results-item {
+  width: 100%;
+}
+
 .editing-results-video {
   display: block;
-  width: 50%;
-  flex: 1 1 0;
-  min-width: 0;
+  width: 100%;
+  max-width: 100%;
   border-radius: 12px;
   background: #111;
 }
