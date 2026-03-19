@@ -274,14 +274,15 @@ body {
 
 .editing-results-video-grid {
   display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
+  flex-direction: row;
+  flex-wrap: wrap;
   gap: 1rem;
   margin-top: 1rem;
 }
 
 .editing-results-item {
-  width: 100%;
+  flex: 1 1 calc(50% - 0.5rem);
+  min-width: 0;
 }
 
 .editing-results-video {
